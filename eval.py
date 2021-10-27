@@ -15,6 +15,8 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import torchvision.models as models
 from resnet_wider import resnet50x1, resnet50x2, resnet50x4
+from advertorch.attacks import LinfPGDAttack, L2PGDAttack
+import numpy as np
 
 model_names = sorted(name for name in models.__dict__
                      if name.islower() and not name.startswith("__")
@@ -88,14 +90,19 @@ def validate(val_loader, model, criterion, args):
 
     # switch to evaluate mode
     model.eval()
-
+    adversary = L2PGDAttack(
+    model, loss_fn=nn.CrossEntropyLoss(reduction="sum"), eps=3,
+    nb_iter=20, eps_iter=0.375, rand_init=True, clip_min=0, clip_max=1,
+    targeted=False)
     with torch.no_grad():
         end = time.time()
         for i, (images, target) in enumerate(val_loader):
+            with torch.enable_grad():
+              adv_untargeted = adversary.perturb(images, target)
             target = target.to('cuda')
 
             # compute output
-            output = model(images)
+            output = model(adv_untargeted)
             loss = criterion(output, target)
 
             # measure accuracy and record loss
