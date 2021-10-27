@@ -98,7 +98,7 @@ def validate(val_loader, model, criterion, args):
         end = time.time()
         for i, (images, target) in enumerate(val_loader):
             with torch.enable_grad():
-              adv_untargeted = adversary.perturb(images, target)
+              adv_untargeted = adversary.perturb(images.to('cuda'), target.to('cuda'))
             target = target.to('cuda')
 
             # compute output
