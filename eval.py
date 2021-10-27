@@ -41,7 +41,7 @@ def main():
     # create model
     if args.arch == 'resnet50-1x':
         model = resnet50x1()
-        sd = 'resnet50-1x.pth'
+        sd = '/content/gdrive/MyDrive/model_checkpoints/resnet50-1x.pth'
     elif args.arch == 'resnet50-2x':
         model = resnet50x2()
         sd = 'resnet50-2x.pth'
@@ -50,7 +50,7 @@ def main():
         sd = 'resnet50-4x.pth'
     else:
         raise NotImplementedError
-    sd = torch.load(sd, map_location='cpu')
+    sd = torch.load(sd, map_location='cuda')
     model.load_state_dict(sd['state_dict'])
 
     model = torch.nn.DataParallel(model).to('cuda')
