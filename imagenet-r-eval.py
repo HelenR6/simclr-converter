@@ -81,20 +81,20 @@ def main():
 
     cudnn.benchmark = True
 
-    # Data loading code
-    valdir = os.path.join(args.data, 'val')
+#     # Data loading code
+#     valdir = os.path.join(args.data, 'val')
 
-    # NOTICE, the original model do not have normalization
-    val_loader = torch.utils.data.DataLoader(
-        datasets.ImageFolder(valdir, transforms.Compose([
-            transforms.Resize(256),
-            transforms.CenterCrop(256),
-            transforms.ToTensor(),
-        ])),
-        batch_size=args.batch_size, shuffle=False,
-        num_workers=args.workers, pin_memory=True)
+#     # NOTICE, the original model do not have normalization
+#     val_loader = torch.utils.data.DataLoader(
+#         datasets.ImageFolder(valdir, transforms.Compose([
+#             transforms.Resize(256),
+#             transforms.CenterCrop(256),
+#             transforms.ToTensor(),
+#         ])),
+#         batch_size=args.batch_size, shuffle=False,
+#         num_workers=args.workers, pin_memory=True)
 
-    validate(val_loader, model, criterion, args)
+    validate(nae_loader, model, criterion, args)
 
 
 def validate(val_loader, model, criterion, args):
@@ -115,7 +115,7 @@ def validate(val_loader, model, criterion, args):
     # targeted=False)
     with torch.no_grad():
         end = time.time()
-        for i, (images, target) in enumerate(nae_loader):
+        for i, (images, target) in enumerate(val_loader):
             # with torch.enable_grad():
             #   adv_untargeted = adversary.perturb(images.to('cuda'), target.to('cuda'))
             target = target.to('cuda')
