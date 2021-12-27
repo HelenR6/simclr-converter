@@ -102,11 +102,16 @@ def validate(val_loader, model, criterion, args):
       model, loss_fn=nn.CrossEntropyLoss(reduction="sum"), eps=0.15,
       nb_iter=20, eps_iter=0.01875, rand_init=True, clip_min=0, clip_max=1,
       targeted=False)
-    if (args.attack=='linf_1020'):
+    if (args.attack=='linf1_1020'):
       adversary = LinfPGDAttack(
       model, loss_fn=nn.CrossEntropyLoss(reduction="sum"), eps=1/1020,
       nb_iter=20, eps_iter=0.00012255, rand_init=True, clip_min=0, clip_max=1,
       targeted=False)
+    if args.attack=='linf4_255':
+        adversary = LinfPGDAttack(
+        model, loss_fn=nn.CrossEntropyLoss(reduction="sum"), eps=19.0316/255,
+        nb_iter=20, eps_iter=47.579/5100, rand_init=True, clip_min=-2.1179, clip_max=2.6400,
+        targeted=False)
     with torch.no_grad():
         end = time.time()
         for i, (images, target) in enumerate(val_loader):
