@@ -33,6 +33,8 @@ parser.add_argument('--lr', '--learning-rate', default=0.1, type=float,
                     metavar='LR', help='initial learning rate', dest='lr')
 parser.add_argument('-p', '--print-freq', default=10, type=int,
                     metavar='N', help='print frequency (default: 10)')
+parser.add_argument('--attack', default='', type=str,
+                    help='attack type')
 
 best_acc1 = 0
 
@@ -90,10 +92,21 @@ def validate(val_loader, model, criterion, args):
 
     # switch to evaluate mode
     model.eval()
-    adversary = L2PGDAttack(
-    model, loss_fn=nn.CrossEntropyLoss(reduction="sum"), eps=3,
-    nb_iter=20, eps_iter=0.375, rand_init=True, clip_min=0, clip_max=1,
-    targeted=False)
+    if (args.attack=='l2_3'):
+      adversary = L2PGDAttack(
+      model, loss_fn=nn.CrossEntropyLoss(reduction="sum"), eps=3,
+      nb_iter=20, eps_iter=0.375, rand_init=True, clip_min=0, clip_max=1,
+      targeted=False)
+    if (args.attack=='l2_0.15'):
+      adversary = L2PGDAttack(
+      model, loss_fn=nn.CrossEntropyLoss(reduction="sum"), eps=0.15,
+      nb_iter=20, eps_iter=0.01875, rand_init=True, clip_min=0, clip_max=1,
+      targeted=False)
+    if (args.attack=='linf_1020'):
+      adversary = LinfPGDAttack(
+      model, loss_fn=nn.CrossEntropyLoss(reduction="sum"), eps=1/1020,
+      nb_iter=20, eps_iter=0.00012255, rand_init=True, clip_min=0, clip_max=1,
+      targeted=False)
     with torch.no_grad():
         end = time.time()
         for i, (images, target) in enumerate(val_loader):
@@ -120,6 +133,11 @@ def validate(val_loader, model, criterion, args):
 
         print(' * Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f}'
               .format(top1=top1, top5=top5))
+        accuracy_array=[]
+        accuracy_array.append(top1.avg.to('cpu'))
+        accuracy_array.append(top5.avg.to('cpu'))
+        np.save(f'/content/gdrive/MyDrive/model_adv_loss/{args.attack}/simclr_accuracy.npy', accuracy_array)
+        
 
     return top1.avg
 
