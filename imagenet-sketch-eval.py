@@ -16,6 +16,7 @@ import torchvision.datasets as datasets
 import torchvision.models as models
 from resnet_wider import resnet50x1, resnet50x2, resnet50x4
 import numpy as np
+from pathlib import Path
 
 model_names = sorted(name for name in models.__dict__
                      if name.islower() and not name.startswith("__")
