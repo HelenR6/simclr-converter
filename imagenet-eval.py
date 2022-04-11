@@ -15,7 +15,6 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import torchvision.models as models
 from resnet_wider import resnet50x1, resnet50x2, resnet50x4
-from advertorch.attacks import LinfPGDAttack, L2PGDAttack
 import numpy as np
 
 model_names = sorted(name for name in models.__dict__
@@ -92,26 +91,6 @@ def validate(val_loader, model, criterion, args):
 
     # switch to evaluate mode
     model.eval()
-    if (args.attack=='l2_3'):
-      adversary = L2PGDAttack(
-      model, loss_fn=nn.CrossEntropyLoss(reduction="sum"), eps=3,
-      nb_iter=20, eps_iter=0.375, rand_init=True, clip_min=0, clip_max=1,
-      targeted=False)
-    if (args.attack=='l2_0.15'):
-      adversary = L2PGDAttack(
-      model, loss_fn=nn.CrossEntropyLoss(reduction="sum"), eps=0.15,
-      nb_iter=20, eps_iter=0.01875, rand_init=True, clip_min=0, clip_max=1,
-      targeted=False)
-    if (args.attack=='linf1_1020'):
-      adversary = LinfPGDAttack(
-      model, loss_fn=nn.CrossEntropyLoss(reduction="sum"), eps=1/1020,
-      nb_iter=20, eps_iter=0.00012255, rand_init=True, clip_min=0, clip_max=1,
-      targeted=False)
-    if args.attack=='linf4_255':
-        adversary = LinfPGDAttack(
-        model, loss_fn=nn.CrossEntropyLoss(reduction="sum"), eps=19.0316/255,
-        nb_iter=20, eps_iter=47.579/5100, rand_init=True, clip_min=-2.1179, clip_max=2.6400,
-        targeted=False)
     with torch.no_grad():
         end = time.time()
         for i, (images, target) in enumerate(val_loader):
@@ -120,7 +99,7 @@ def validate(val_loader, model, criterion, args):
             target = target.to('cuda')
 
             # compute output
-            output = model(adv_untargeted)
+            output = model(images)
             loss = criterion(output, target)
 
             # measure accuracy and record loss
@@ -141,7 +120,7 @@ def validate(val_loader, model, criterion, args):
         accuracy_array=[]
         accuracy_array.append(top1.avg.to('cpu'))
         accuracy_array.append(top5.avg.to('cpu'))
-        np.save(f'/content/gdrive/MyDrive/model_adv_loss/{args.attack}/simclr_accuracy.npy', accuracy_array)
+        np.save(f'/content/gdrive/MyDrive/model_OOD_acc/sketch/simclr_accuracy.npy', accuracy_array)
         
 
     return top1.avg
