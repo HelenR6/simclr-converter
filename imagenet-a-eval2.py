@@ -23,7 +23,7 @@ mean = [0.485, 0.456, 0.406]
 std = [0.229, 0.224, 0.225]
 
 test_transform = trn.Compose(
-    [trn.Resize(256), trn.CenterCrop(224), trn.ToTensor(), trn.Normalize(mean, std)])
+    [trn.Resize(256), trn.CenterCrop(224), trn.ToTensor()])
 
 naes = dset.ImageFolder(root="/content/gdrive/MyDrive/imagenet-a", transform=test_transform)
 nae_loader = torch.utils.data.DataLoader(naes, batch_size=128, shuffle=False,
